@@ -369,23 +369,19 @@
     <script>
         // Configuration
         const CONFIG = {
-            N8N_WEBHOOK_URL: 'http://localhost:5678/webhook-test/ask', // Update with your n8n webhook URL
-            GOOGLE_SHEETS_API_KEY: 'AIzaSyD6E9U2OZ4KMqOscAYfetq6nvc2kbJ7qzg', // Update with your Google API key
-            SHEET_ID: '1AoMmpRscO5kK-OoKn991iKGUcRSOg92EDEKP-sX8bis' // Update with your Google Sheet ID
+            N8N_WEBHOOK_URL: 'http://localhost:5678/webhook-test/ask',
+            GOOGLE_SHEETS_API_KEY: 'AIzaSyD6E9U2OZ4KMqOscAYfetq6nvc2kbJ7qzg',
+            SHEET_ID: '1AoMmpRscO5kK-OoKn991iKGUcRSOg92EDEKP-sX8bis'
         };
 
-        // Store the stores list
         let storesData = [];
 
-        // Initialize the app
         document.addEventListener('DOMContentLoaded', async () => {
             await loadStores();
             loadHistory();
         });
 
-        // Load stores from hardcoded data or Google Sheets
         async function loadStores() {
-            // Using hardcoded stores data for now
             storesData = [
                 {
                     id: 'store_1',
@@ -446,12 +442,12 @@ A: 7am-9pm daily
 Category: menu
 Q: Vegan options?
 A: Yes, we have almond milk and oat milk options`
-                }
+                },
                 {
-    id: 'store_4',
-    name: 'Dominos Pizza',
-    phone: '+91-9876543214',
-    faqContext: `Category: delivery
+                    id: 'store_4',
+                    name: 'Dominos Pizza',
+                    phone: '+91-9876543214',
+                    faqContext: `Category: delivery
 Q: Do you deliver?
 A: Yes, we deliver within 10km. Free delivery on orders over ₹600
 
@@ -478,12 +474,12 @@ A: Yes, we have vegan pizzas with plant-based cheese
 Category: pricing
 Q: What's the delivery charge?
 A: Free delivery on orders over ₹600. Orders below ₹600 have ₹100 delivery charge`
-},
-{
-    id: 'store_5',
-    name: 'Subway',
-    phone: '+91-9876543215',
-    faqContext: `Category: delivery
+                },
+                {
+                    id: 'store_5',
+                    name: 'Subway',
+                    phone: '+91-9876543215',
+                    faqContext: `Category: delivery
 Q: Do you deliver?
 A: Yes, we deliver within 8km. Free delivery on orders over ₹400
 
@@ -504,12 +500,12 @@ A: Yes, we have salad and veggie subs
 Category: payment
 Q: Payment methods?
 A: Cash, cards, UPI, Google Pay, PhonePe accepted`
-},
-{
-    id: 'store_6',
-    name: 'Starbucks',
-    phone: '+91-9876543216',
-    faqContext: `Category: delivery
+                },
+                {
+                    id: 'store_6',
+                    name: 'Starbucks',
+                    phone: '+91-9876543216',
+                    faqContext: `Category: delivery
 Q: Do you deliver?
 A: Yes, we deliver within 5km. Free delivery on orders over ₹300
 
@@ -530,12 +526,12 @@ A: Yes, we have almond milk, oat milk, and soy milk options
 Category: loyalty
 Q: Do you have loyalty program?
 A: Yes, Starbucks Rewards members get exclusive benefits`
-},
-{
-    id: 'store_7',
-    name: 'Biryani House',
-    phone: '+91-9876543217',
-    faqContext: `Category: delivery
+                },
+                {
+                    id: 'store_7',
+                    name: 'Biryani House',
+                    phone: '+91-9876543217',
+                    faqContext: `Category: delivery
 Q: Do you deliver?
 A: Yes, we deliver within 7km. Free delivery on orders over ₹500
 
@@ -556,12 +552,12 @@ A: Yes, we have paneer biryani and vegetable biryani
 Category: spice
 Q: Can I customize spice level?
 A: Yes, you can request mild, medium, or spicy`
-},
-{
-    id: 'store_8',
-    name: 'Juice Bar',
-    phone: '+91-9876543218',
-    faqContext: `Category: delivery
+                },
+                {
+                    id: 'store_8',
+                    name: 'Juice Bar',
+                    phone: '+91-9876543218',
+                    faqContext: `Category: delivery
 Q: Do you deliver?
 A: Yes, we deliver fresh juices within 3km. Free delivery on orders over ₹200
 
@@ -582,10 +578,9 @@ A: Yes, all juices are made fresh on order
 Category: health
 Q: Do you have sugar-free options?
 A: Yes, we offer sugar-free and low-calorie juice blends`
-}
+                }
             ];
 
-            // Populate store dropdown
             const storeSelect = document.getElementById('store');
             storesData.forEach(store => {
                 const option = document.createElement('option');
@@ -595,13 +590,11 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             });
         }
 
-        // Get selected store data
         function getSelectedStore() {
             const storeId = document.getElementById('store').value;
             return storesData.find(s => s.id === storeId);
         }
 
-        // Handle form submission
         document.getElementById('chatForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -615,29 +608,27 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
                 return;
             }
 
-            // Show loading state
             const submitBtn = document.querySelector('.btn-submit');
             const submitText = document.getElementById('submitText');
             submitBtn.disabled = true;
             submitText.innerHTML = '<span class="loading"></span>Sending...';
 
             try {
-                // Send to n8n webhook
+                const sessionId = generateSessionId();
+                
                 const response = await sendToN8N({
                     storeId: store.id,
                     storeName: store.name,
                     customerPhone: phone,
-                    sessionId: generateSessionId(),
+                    sessionId: sessionId,
                     userMessage: message,
                     messageType: messageType,
                     faqContext: store.faqContext,
                     timestamp: new Date().toISOString()
                 });
 
-                // Display response
                 displayResponse(response);
 
-                // Save to history
                 saveToHistory({
                     store: store.name,
                     message: message,
@@ -646,7 +637,6 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
                     timestamp: new Date().toLocaleString()
                 });
 
-                // Save to Google Sheets
                 await saveToGoogleSheets({
                     timestamp: new Date().toISOString(),
                     storeId: store.id,
@@ -667,7 +657,6 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             }
         });
 
-        // Send to n8n webhook
         async function sendToN8N(data) {
             const response = await fetch('http://127.0.0.1:11434/api/generate', {
                 method: 'POST',
@@ -707,18 +696,14 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             };
         }
 
-        // Save to Google Sheets
         async function saveToGoogleSheets(data) {
             try {
-                // This would require Google Sheets API setup
-                // For now, we'll skip this and you can implement it later
                 console.log('Data to save to Google Sheets:', data);
             } catch (error) {
                 console.error('Error saving to Google Sheets:', error);
             }
         }
 
-        // Display response
         function displayResponse(response) {
             const responseSection = document.getElementById('responseSection');
             const responseBox = document.getElementById('responseBox');
@@ -735,7 +720,6 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             responseSection.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Display error
         function displayError(message) {
             const responseSection = document.getElementById('responseSection');
             const responseBox = document.getElementById('responseBox');
@@ -754,16 +738,14 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             }, 5000);
         }
 
-        // Save to local history
         function saveToHistory(item) {
             let history = JSON.parse(localStorage.getItem('chatHistory')) || [];
             history.unshift(item);
-            history = history.slice(0, 10); // Keep only last 10
+            history = history.slice(0, 10);
             localStorage.setItem('chatHistory', JSON.stringify(history));
             loadHistory();
         }
 
-        // Load history
         function loadHistory() {
             const history = JSON.parse(localStorage.getItem('chatHistory')) || [];
             const historyList = document.getElementById('historyList');
@@ -788,7 +770,6 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             historySection.classList.remove('hidden');
         }
 
-        // Copy response to clipboard
         function copyToClipboard() {
             const responseText = document.querySelector('.response-text').textContent;
             navigator.clipboard.writeText(responseText).then(() => {
@@ -801,7 +782,6 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             });
         }
 
-        // Clear history
         function clearHistory() {
             if (confirm('Clear all conversation history?')) {
                 localStorage.removeItem('chatHistory');
@@ -809,7 +789,6 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             }
         }
 
-        // Generate session ID
         function generateSessionId() {
             return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
