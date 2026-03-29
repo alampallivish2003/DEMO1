@@ -369,7 +369,8 @@
     <script>
         // Configuration
         const CONFIG = {
-            N8N_WEBHOOK_URL: 'http://localhost:5678/webhook-test/ask',
+            GROQ_API_URL: 'https://api.groq.com/openai/v1/chat/completions',
+            GROQ_API_KEY: 'gsk_YOUR_GROQ_API_KEY_HERE',  // Replace with your actual Groq API key
             GOOGLE_SHEETS_API_KEY: 'AIzaSyD6E9U2OZ4KMqOscAYfetq6nvc2kbJ7qzg',
             SHEET_ID: '1AoMmpRscO5kK-OoKn991iKGUcRSOg92EDEKP-sX8bis'
         };
@@ -616,7 +617,7 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             try {
                 const sessionId = generateSessionId();
                 
-                const response = await sendToN8N({
+                const response = await sendToGroq({
                     storeId: store.id,
                     storeName: store.name,
                     customerPhone: phone,
@@ -657,14 +658,15 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             }
         });
 
-        async function sendToN8N(data) {
-            const response = await fetch('http://127.0.0.1:11434/api/generate', {
+        async function sendToGroq(data) {
+            const response = await fetch(CONFIG.GROQ_API_URL, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${CONFIG.GROQ_API_KEY}`
                 },
                 body: JSON.stringify({
-                    model: 'llama-3.1-8b-instant',
+                    model: 'mixtral-8x7b-32768',
                     messages: [
                         {
                             role: 'system',
@@ -681,7 +683,8 @@ A: Yes, we offer sugar-free and low-calorie juice blends`
             });
 
             if (!response.ok) {
-                throw new Error('Failed to get response from AI');
+                const error = await response.json();
+                throw new Error(error.error?.message || 'Failed to get response from Groq API');
             }
 
             const result = await response.json();
